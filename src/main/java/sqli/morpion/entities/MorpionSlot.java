@@ -8,12 +8,17 @@ public final class MorpionSlot
   
   public void play (final Player player)
   {
-    if (this.player != null)
+    if (isPlayed())
     {
       throw new BoxAlreadySelectedException();
     }
     
     this.player = player;
+  }
+  
+  public boolean isPlayed ()
+  {
+    return player != null;
   }
   
   public char display ()

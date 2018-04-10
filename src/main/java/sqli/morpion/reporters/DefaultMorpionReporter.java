@@ -30,7 +30,7 @@ public final class DefaultMorpionReporter implements MorpionReporter
       return "Game Over, equality";
     }
     
-    final int leftMorpionSlots = morpion.getMorpionSize().getRows() * morpion.getMorpionSize().getColumns() - morpion.getPlayedCounter();
+    final long leftMorpionSlots = morpion.getMorpionSize().getRows() * morpion.getMorpionSize().getColumns() - morpion.getPlayedCounter();
     
     return String.format("%d games for %s, %d games for %s", leftMorpionSlots / 2 + leftMorpionSlots % 2, morpion.getFirstPlayer().getName(), leftMorpionSlots / 2, morpion.getSecondPlayer().getName());
   }
@@ -42,7 +42,8 @@ public final class DefaultMorpionReporter implements MorpionReporter
     
     return IntStream.range(0, size)
       .mapToObj(rowIndex -> IntStream.range(0, size)
-          .mapToObj(colIndex -> String.valueOf(slots[size * rowIndex + colIndex].display()))
+          .mapToObj(columnIndex -> slots[size * rowIndex + columnIndex].display())
+          .map(String::valueOf)
           .collect(Collectors.joining("|")))
       .collect(Collectors.joining(Morpion.LINE_SEPARATOR)) + Morpion.LINE_SEPARATOR;
   }

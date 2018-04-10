@@ -1,5 +1,7 @@
 package sqli.morpion;
 
+import java.util.Objects;
+
 import sqli.morpion.entities.Player;
 
 public final class MorpionVector
@@ -15,22 +17,20 @@ public final class MorpionVector
     this.morpionSize = morpionSize;
   }
 
-  public boolean play (final Player currentPlayer)
+  public void play (final Player currentPlayer)
   {
     if (firstPlayedWith == null)
     {
       firstPlayedWith = currentPlayer;
     }
     
-    if (firstPlayedWith.compareTo(currentPlayer) == 0)
+    if (Objects.equals(firstPlayedWith, currentPlayer))
     {
       if (++playedCounter == morpionSize)
       {
-        return won = true;
+        won = true;
       }
     }
-    
-    return won;
   }
   
   public boolean isWon ()

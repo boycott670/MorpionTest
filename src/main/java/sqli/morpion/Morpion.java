@@ -1,7 +1,8 @@
 package sqli.morpion;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -25,11 +26,11 @@ public final class Morpion
   private final MorpionReporter morpionReporter = new DefaultMorpionReporter();
   
   private final MorpionSize morpionSize;
+  
   private final Map<String, Player> players;
+  private final Player playerOne, playerTwo;
   
   private final MorpionVector[] morpionVectors;
-  
-  private int playedCounter = 0;
   
   private final MorpionSlot[] slots;
   
@@ -43,9 +44,10 @@ public final class Morpion
     players = Stream.of(parsedPlayerOneEntry, parsedPlayerTwoEntry)
       .collect(Collectors.toMap(
         PlayerEntry::getPlayerName,
-        playerEntry -> new Player(playerEntry.getPlayerName(), playerEntry.getMorpionCode()),
-        (player1, player2) -> player1,
-        LinkedHashMap::new));
+        playerEntry -> new Player(playerEntry.getPlayerName(), playerEntry.getMorpionCode())));
+    
+    playerOne = players.get(parsedPlayerOneEntry.getPlayerName());
+    playerTwo = players.get(parsedPlayerTwoEntry.getPlayerName());
     
     morpionVectors = IntStream.rangeClosed(1, this.morpionSize.getRows() * 2 + 2)
       .mapToObj(__ -> new MorpionVector(this.morpionSize.getRows()))
@@ -60,27 +62,24 @@ public final class Morpion
   {
     final MorpionCoordinates parsedMorpionCoordinates = morpionParser.parseMorpionCoordinates(morpionCoordinates);
     
-    if (!morpionVectors[parsedMorpionCoordinates.getRow()].play(players.get(playerName)))
+    final List<Integer> checkIndexes = new ArrayList<>(Arrays.asList(parsedMorpionCoordinates.getRow(), morpionSize.getRows() + parsedMorpionCoordinates.getColumn()));
+    
+    if (parsedMorpionCoordinates.getRow() == parsedMorpionCoordinates.getColumn())
     {
-      if (!morpionVectors[morpionSize.getRows() + parsedMorpionCoordinates.getColumn()].play(players.get(playerName)))
-      {
-        boolean playerWonDiagonal = false;
-        
-        if (parsedMorpionCoordinates.getRow() == parsedMorpionCoordinates.getColumn())
-        {
-          playerWonDiagonal = morpionVectors[2 * morpionSize.getRows()].play(players.get(playerName));
-        }
-        
-        if (!playerWonDiagonal && parsedMorpionCoordinates.getRow() + parsedMorpionCoordinates.getColumn() == morpionSize.getRows() - 1)
-        {
-          morpionVectors[2 * morpionSize.getRows() + 1].play(players.get(playerName));
-        }
-      }
+      checkIndexes.add(2 * morpionSize.getRows());
+    }
+    
+    if (parsedMorpionCoordinates.getRow() + parsedMorpionCoordinates.getColumn() == morpionSize.getRows() - 1)
+    {
+      checkIndexes.add(2 * morpionSize.getRows() + 1);
+    }
+    
+    for (final Integer checkIndex : checkIndexes)
+    {
+      morpionVectors[checkIndex].play(players.get(playerName));
     }
     
     slots[morpionSize.getRows() * parsedMorpionCoordinates.getRow() + parsedMorpionCoordinates.getColumn()].play(players.get(playerName));
-    
-    playedCounter ++;
   }
   
   public String report ()
@@ -103,22 +102,20 @@ public final class Morpion
     return morpionSize;
   }
 
-  public int getPlayedCounter()
+  public long getPlayedCounter()
   {
-    return playedCounter;
+    return Arrays.stream(slots)
+        .filter(MorpionSlot::isPlayed)
+        .count();
   }
   
   public Player getFirstPlayer ()
   {
-    return players.entrySet().iterator().next().getValue();
+    return playerOne;
   }
   
   public Player getSecondPlayer ()
   {
-    final Iterator<? extends Map.Entry<?, ? extends Player>> players = this.players.entrySet().iterator();
-    
-    players.next();
-    
-    return players.next().getValue();
+    return playerTwo;
   }
 }
