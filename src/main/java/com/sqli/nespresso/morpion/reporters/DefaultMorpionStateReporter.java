@@ -9,31 +9,22 @@ import java.util.stream.Stream;
 import com.sqli.nespresso.morpion.entities.MorpionSlot;
 import com.sqli.nespresso.morpion.entities.Player;
 import com.sqli.nespresso.morpion.extractors.MorpionExtractor;
-import com.sqli.nespresso.morpion.utils.ImmutablePair;
 
 public final class DefaultMorpionStateReporter implements MorpionStateReporter
 {
   
+	  private MorpionSlot[] morpionSlots;
+	  
   private MorpionExtractor morpionExtractor;
 
   private Player firstPlayer;
   
   private Player secondPlayer;
   
-  private MorpionSlot[] morpionSlots;
-  
-  private ImmutablePair<Integer, Integer> morpionSize;
-  
   @Override
   public void setMorpionSlots(MorpionSlot[] slots)
   {
     this.morpionSlots = slots;
-  }
-
-  @Override
-  public void setMorpionSize(ImmutablePair<Integer, Integer> size)
-  {
-    this.morpionSize = size;
   }
 
   @Override
@@ -69,11 +60,11 @@ public final class DefaultMorpionStateReporter implements MorpionStateReporter
   @Override
   public MorpionStateReport getReport()
   {
-    final Optional<String> winner = Stream.concat(Stream.of(morpionExtractor.extractorRows(morpionSize, morpionSlots),
-        morpionExtractor.extractorColumns(morpionSize, morpionSlots))
+    final Optional<String> winner = Stream.concat(Stream.of(morpionExtractor.extractorRows(),
+        morpionExtractor.extractorColumns())
         .flatMap(Arrays::stream),
-        Stream.of(morpionExtractor.extractorDiagonal(morpionSize, morpionSlots),
-            morpionExtractor.extractorReverseDiagonal(morpionSize, morpionSlots)))
+        Stream.of(morpionExtractor.extractorDiagonal(),
+            morpionExtractor.extractorReverseDiagonal()))
         .map(this::winner)
         .filter(Objects::nonNull)
         .findFirst();
@@ -95,12 +86,6 @@ public final class DefaultMorpionStateReporter implements MorpionStateReporter
       public Optional<Player> winner()
       {
         return winner.map(playing -> Objects.equals(firstPlayer.display(), playing) ? firstPlayer : secondPlayer);
-      }
-
-      @Override
-      public boolean isEquality()
-      {
-        return !winner.isPresent() && !isIncomplete();
       }
     };
   }

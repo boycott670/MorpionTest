@@ -1,12 +1,9 @@
 package com.sqli.nespresso.morpion;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.sqli.nespresso.morpion.displayers.DefaultMorpionDisplayer;
@@ -36,7 +33,9 @@ public final class Morpion
   
   private final ImmutablePair<Integer, Integer> size;
   
-  private final Map<String, Player> players;
+  private final Player firstPlayer;
+  
+  private final Player secondPlayer;
   
   private final MorpionSlot[] slots;
   
@@ -52,37 +51,43 @@ public final class Morpion
     
     this.size = parser.parseMorpionSize(size);
     
-    players = Stream.of(player1, player2)
-        .map(parser::parseMorpionPlayer)
-        .map(Player::fromPair)
-        .collect(Collectors.toMap(Player::getName, Function.identity()));
+    final Function<String, Player> toPlayer = ((Function<String, ImmutablePair<String, Character>>)parser::parseMorpionPlayer).andThen(Player::fromPair);
+    
+    firstPlayer = toPlayer.apply(player1);
+    
+    secondPlayer = toPlayer.apply(player2);
     
     slots = Stream.generate(MorpionSlot::empty)
         .limit(this.size.getFirst() * this.size.getSecond())
         .toArray(MorpionSlot[]::new);
+    
+    extractor.setMorpionSlots(slots);
+    
+    extractor.setMorpionSize(this.size);
+    
+    stateReporter.setMorpionExtractor(extractor);
+    
+    stateReporter.setMorpionSlots(slots);
+    
+    stateReporter.setFirstPlayer(firstPlayer);
+    
+    stateReporter.setSecondPlayer(secondPlayer);
+  }
+  
+  private Player getPlayerByName(final String name)
+  {
+	  return Objects.equals(name, firstPlayer.getName()) ? firstPlayer : secondPlayer;
   }
   
   void play(final String player, final String slotCoordinates)
   {
     final ImmutablePair<Integer, Integer> parsedSlotCoordinates = parser.parseMorpionSlotCoordinates(slotCoordinates);
     
-    slots[size.getFirst() * parsedSlotCoordinates.getFirst() + parsedSlotCoordinates.getSecond()].fill(players.get(player));
+    slots[size.getFirst() * parsedSlotCoordinates.getFirst() + parsedSlotCoordinates.getSecond()].fill(getPlayerByName(player));
   }
   
   String report()
   {
-    final List<Player> players = new ArrayList<>(this.players.values());
-    
-    stateReporter.setFirstPlayer(players.get(0));
-    
-    stateReporter.setSecondPlayer(players.get(1));
-    
-    stateReporter.setMorpionExtractor(extractor);
-    
-    stateReporter.setMorpionSize(size);
-    
-    stateReporter.setMorpionSlots(slots);
-    
     final MorpionStateReport stateReport = stateReporter.getReport();
     
     final Optional<Player> winner = stateReport.winner();
@@ -95,7 +100,7 @@ public final class Morpion
     {
       final long remainingSlots = Arrays.stream(slots).map(MorpionSlot::display).filter(" "::equals).count();
       
-      return String.format("%d games for %s, %d games for %s", remainingSlots / 2 + (remainingSlots % 2), players.get(0).getName(), remainingSlots / 2, players.get(1).getName());
+      return String.format("%d games for %s, %d games for %s", remainingSlots / 2 + (remainingSlots % 2), firstPlayer.getName(), remainingSlots / 2, secondPlayer.getName());
     }
     else
     {

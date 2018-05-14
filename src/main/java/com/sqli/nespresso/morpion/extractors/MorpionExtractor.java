@@ -5,11 +5,15 @@ import com.sqli.nespresso.morpion.utils.ImmutablePair;
 
 public interface MorpionExtractor
 {
-  MorpionSlot[][] extractorRows(final ImmutablePair<Integer, Integer> size, final MorpionSlot[] slots);
+	  void setMorpionSlots(final MorpionSlot[] slots);
+	  
+	  void setMorpionSize(final ImmutablePair<Integer, Integer> size);
+	  
+  MorpionSlot[][] extractorRows();
   
-  MorpionSlot[][] extractorColumns(final ImmutablePair<Integer, Integer> size, final MorpionSlot[] slots);
+  MorpionSlot[][] extractorColumns();
   
-  MorpionSlot[] extractorDiagonal(final ImmutablePair<Integer, Integer> size, final MorpionSlot[] slots);
+  MorpionSlot[] extractorDiagonal();
   
-  MorpionSlot[] extractorReverseDiagonal(final ImmutablePair<Integer, Integer> size, final MorpionSlot[] slots);
+  MorpionSlot[] extractorReverseDiagonal();
 }

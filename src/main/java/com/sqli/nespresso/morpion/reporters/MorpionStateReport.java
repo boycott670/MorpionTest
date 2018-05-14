@@ -8,7 +8,5 @@ public interface MorpionStateReport
 {
   Optional<Player> winner();
   
-  boolean isEquality();
-  
   boolean isIncomplete();
 }
