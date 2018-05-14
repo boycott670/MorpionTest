@@ -1,8 +1,10 @@
-package com.sqli.nespresso.morpion;
+package com.sqli.nespresso.morpion.entities;
 
-final class Player
+import com.sqli.nespresso.morpion.utils.ImmutablePair;
+
+public final class Player
 {
-  static Player fromPair(final ImmutablePair<String, Character> pair)
+  public static Player fromPair(final ImmutablePair<String, Character> pair)
   {
     return new Player(pair.getFirst(), pair.getSecond());
   }
@@ -16,12 +18,12 @@ final class Player
     this.playing = playing;
   }
 
-  String getName()
+  public String getName()
   {
     return name;
   }
   
-  String display()
+  public String display()
   {
     return String.valueOf(playing);
   }

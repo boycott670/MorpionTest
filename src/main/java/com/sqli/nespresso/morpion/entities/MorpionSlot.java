@@ -1,12 +1,12 @@
-package com.sqli.nespresso.morpion;
+package com.sqli.nespresso.morpion.entities;
 
 import java.util.Optional;
 
 import com.sqli.nespresso.morpion.exceptions.BoxAlreadySelectedException;
 
-final class MorpionSlot
+public final class MorpionSlot
 {
-  static MorpionSlot empty()
+  public static MorpionSlot empty()
   {
     return new MorpionSlot(Optional.empty());
   }
@@ -18,7 +18,7 @@ final class MorpionSlot
     this.playedBy = playedBy;
   }
 
-  void fill(final Player player)
+  public void fill(final Player player)
   {
     if (playedBy.isPresent())
     {
@@ -28,7 +28,7 @@ final class MorpionSlot
     playedBy = Optional.of(player);
   }
   
-  String display()
+  public String display()
   {
     return playedBy.map(Player::display).orElse(" ");
   }

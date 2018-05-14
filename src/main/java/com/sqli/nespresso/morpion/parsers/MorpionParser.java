@@ -1,6 +1,8 @@
-package com.sqli.nespresso.morpion;
+package com.sqli.nespresso.morpion.parsers;
 
-interface MorpionParser
+import com.sqli.nespresso.morpion.utils.ImmutablePair;
+
+public interface MorpionParser
 {
   ImmutablePair<Integer, Integer> parseMorpionSize(final String size);
   

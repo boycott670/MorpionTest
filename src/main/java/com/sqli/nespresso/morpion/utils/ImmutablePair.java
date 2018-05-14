@@ -1,11 +1,11 @@
-package com.sqli.nespresso.morpion;
+package com.sqli.nespresso.morpion.utils;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map.Entry;
 
-final class ImmutablePair<F, S>
+public final class ImmutablePair<F, S>
 {
-  static <F, S> ImmutablePair<F, S> of(final F first, final S second)
+  public static <F, S> ImmutablePair<F, S> of(final F first, final S second)
   {
     return new ImmutablePair<F, S>(first, second);
   }
@@ -17,12 +17,12 @@ final class ImmutablePair<F, S>
     entry = new SimpleImmutableEntry<>(first, second);
   }
   
-  F getFirst()
+  public F getFirst()
   {
     return entry.getKey();
   }
   
-  S getSecond()
+  public S getSecond()
   {
     return entry.getValue();
   }

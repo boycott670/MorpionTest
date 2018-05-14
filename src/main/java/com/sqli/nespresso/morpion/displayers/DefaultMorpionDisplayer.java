@@ -1,10 +1,14 @@
-package com.sqli.nespresso.morpion;
+package com.sqli.nespresso.morpion.displayers;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-final class DefaultMorpionDisplayer implements MorpionDisplayer
+import com.sqli.nespresso.morpion.Morpion;
+import com.sqli.nespresso.morpion.entities.MorpionSlot;
+import com.sqli.nespresso.morpion.utils.ImmutablePair;
+
+public final class DefaultMorpionDisplayer implements MorpionDisplayer
 {
 
   private String displayRow(final MorpionSlot[] row)

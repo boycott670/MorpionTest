@@ -1,8 +1,10 @@
-package com.sqli.nespresso.morpion;
+package com.sqli.nespresso.morpion.parsers;
 
 import java.util.Arrays;
 
-final class DefaultMorpionParser implements MorpionParser
+import com.sqli.nespresso.morpion.utils.ImmutablePair;
+
+public final class DefaultMorpionParser implements MorpionParser
 {
 
   @Override

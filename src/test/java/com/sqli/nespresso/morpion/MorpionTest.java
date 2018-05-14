@@ -8,6 +8,7 @@ import com.sqli.nespresso.morpion.exceptions.BoxAlreadySelectedException;
 
 public class MorpionTest
 {
+
   @Test
   public void remainingGames()
   {
@@ -27,6 +28,18 @@ public class MorpionTest
   }
 
   @Test
+  public void winner()
+  {
+    Morpion game = new Morpion("3x3", "player1:X", "player2:O");
+    game.play("player1", "0x0");
+    game.play("player2", "0x1");
+    game.play("player1", "1x1");
+    game.play("player2", "0x2");
+    game.play("player1", "2x2");
+    assertEquals("Game Over, player1 is a winner", game.report());
+  }
+
+  @Test
   public void displayEqualityGame()
   {
     Morpion game = new Morpion("3x3", "player1:X", "player2:O");
@@ -39,13 +52,13 @@ public class MorpionTest
     game.play("player1", "1x2");
     game.play("player2", "2x1");
     game.play("player1", "2x2");
-    // assertEquals("Game Over, equality", game.report());
+    assertEquals("Game Over, equality", game.report());
     String expectedDisplay = new StringBuilder().append("X|X|O")
-        .append(Morpion.LINE_SEPARATOR)
+        .append("\n")
         .append("O|O|X")
-        .append(Morpion.LINE_SEPARATOR)
+        .append("\n")
         .append("X|O|X")
-        .append(Morpion.LINE_SEPARATOR)
+        .append("\n")
         .toString();
     assertEquals(expectedDisplay.toString(), game.display());
   }
