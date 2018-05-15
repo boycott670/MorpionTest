@@ -18,13 +18,13 @@ public final class Player
     this.playing = playing;
   }
 
-  public String getName()
+  public String name()
   {
     return name;
   }
   
-  public String display()
+  public char playingBy()
   {
-    return String.valueOf(playing);
+    return playing;
   }
 }

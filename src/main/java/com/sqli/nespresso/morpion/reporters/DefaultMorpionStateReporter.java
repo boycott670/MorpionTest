@@ -1,8 +1,9 @@
 package com.sqli.nespresso.morpion.reporters;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,15 +26,15 @@ public final class DefaultMorpionStateReporter implements MorpionStateReporter
   private Player secondPlayer;
   
   @Override
-  public void setMorpionSlots(MorpionSlot[] slots)
+  public void setMorpionSlots(MorpionSlot[] morpionSlots)
   {
-    this.morpionSlots = slots;
+    this.morpionSlots = morpionSlots;
   }
   
   @Override
-  public void setMorpionSize(ImmutablePair<Integer, Integer> size)
+  public void setMorpionSize(ImmutablePair<Integer, Integer> morpionSize)
   {
-    this.morpionSize = size;
+    this.morpionSize = morpionSize;
   }
 
   @Override
@@ -54,16 +55,31 @@ public final class DefaultMorpionStateReporter implements MorpionStateReporter
     this.secondPlayer = player;
   }
 
-  private String winner(final MorpionSlot[] slots)
+  private Optional<Player> winner(final MorpionSlot[] slots)
   {
-    final String slotsRepr = Arrays.stream(slots).map(MorpionSlot::display).collect(Collectors.joining());
+    final Predicate<MorpionSlot[]> allFilled = slotsToValidate -> Arrays.stream(slotsToValidate)
+        .map(MorpionSlot::player)
+        .allMatch(Optional::isPresent);
     
-    if (slotsRepr.replaceAll("\\s+", "").length() == slots.length && slotsRepr.chars().distinct().count() == 1)
+    final Predicate<MorpionSlot[]> isWon = slotsToValidate -> Arrays.stream(slotsToValidate)
+        .map(MorpionSlot::player)
+        .map(Optional::get)
+        .map(Player::playingBy)
+        .map(String::valueOf)
+        .collect(Collectors.joining())
+        .chars()
+        .distinct()
+        .count() == 1;
+    
+    if (allFilled.test(slots) && isWon.test(slots))
     {
-      return String.valueOf(slotsRepr.charAt(0));
+      return Arrays.stream(slots)
+          .map(MorpionSlot::player)
+          .map(Optional::get)
+          .findFirst();
     }
     
-    return null;
+    return Optional.empty();
   }
   
   @Override
@@ -73,14 +89,18 @@ public final class DefaultMorpionStateReporter implements MorpionStateReporter
     
     morpionExtractor.setMorpionSize(morpionSize);
     
-    final Optional<String> winner = Stream.concat(Stream.of(morpionExtractor.extractorRows(),
-        morpionExtractor.extractorColumns())
-        .flatMap(Arrays::stream),
-        Stream.of(morpionExtractor.extractorDiagonal(),
-            morpionExtractor.extractorReverseDiagonal()))
+    final Stream<MorpionSlot[]> allRows = Arrays.stream(morpionExtractor.extractorRows());
+    
+    final Stream<MorpionSlot[]> allColumns = Arrays.stream(morpionExtractor.extractorColumns());
+    
+    final Stream<MorpionSlot[]> twoDiagonals = Stream.of(morpionExtractor.extractorDiagonal(), morpionExtractor.extractorReverseDiagonal());
+    
+    final Optional<Player> winner = Stream.of(allRows, allColumns, twoDiagonals)
+        .flatMap(Function.identity())
         .map(this::winner)
-        .filter(Objects::nonNull)
-        .findFirst();
+        .filter(Optional::isPresent)
+        .findFirst()
+        .map(Optional::get);    
     
     return new MorpionStateReport()
     {
@@ -89,16 +109,14 @@ public final class DefaultMorpionStateReporter implements MorpionStateReporter
       public boolean isIncomplete()
       {
         return Arrays.stream(morpionSlots)
-            .map(MorpionSlot::display)
-            .filter(" "::equals)
-            .findFirst()
-            .isPresent();
+            .map(MorpionSlot::player)
+            .anyMatch(((Predicate<Optional<?>>) Optional::isPresent).negate());
       }
 
       @Override
       public Optional<Player> winner()
       {
-        return winner.map(playing -> Objects.equals(firstPlayer.display(), playing) ? firstPlayer : secondPlayer);
+        return winner.map(player -> firstPlayer == player ? firstPlayer : secondPlayer);
       }
     };
   }
