@@ -20,10 +20,6 @@ public final class DefaultMorpionStateReporter implements MorpionStateReporter
   private ImmutablePair<Integer, Integer> morpionSize;
 	  
   private MorpionExtractor morpionExtractor;
-
-  private Player firstPlayer;
-  
-  private Player secondPlayer;
   
   @Override
   public void setMorpionSlots(MorpionSlot[] morpionSlots)
@@ -41,18 +37,6 @@ public final class DefaultMorpionStateReporter implements MorpionStateReporter
   public void setMorpionExtractor(MorpionExtractor morpionExtractor)
   {
     this.morpionExtractor = morpionExtractor;
-  }
-
-  @Override
-  public void setFirstPlayer(Player player)
-  {
-    this.firstPlayer = player;
-  }
-
-  @Override
-  public void setSecondPlayer(Player player)
-  {
-    this.secondPlayer = player;
   }
 
   private Optional<Player> winner(final MorpionSlot[] slots)
@@ -116,7 +100,7 @@ public final class DefaultMorpionStateReporter implements MorpionStateReporter
       @Override
       public Optional<Player> winner()
       {
-        return winner.map(player -> firstPlayer == player ? firstPlayer : secondPlayer);
+        return winner;
       }
     };
   }

@@ -70,10 +70,6 @@ public final class DefaultMorpionStateReportDisplayer implements MorpionStateRep
     
     reporter.setMorpionExtractor(morpionExtractor);
     
-    reporter.setFirstPlayer(firstPlayer);
-    
-    reporter.setSecondPlayer(secondPlayer);
-    
     final MorpionStateReport report = reporter.getReport();
     
     final Optional<Player> winner = report.winner();
