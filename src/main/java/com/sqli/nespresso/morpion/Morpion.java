@@ -61,13 +61,11 @@ public final class Morpion
         .limit(this.size.getFirst() * this.size.getSecond())
         .toArray(MorpionSlot[]::new);
     
-    extractor.setMorpionSlots(slots);
-    
-    extractor.setMorpionSize(this.size);
-    
     stateReporter.setMorpionExtractor(extractor);
     
     stateReporter.setMorpionSlots(slots);
+    
+    stateReporter.setMorpionSize(this.size);
     
     stateReporter.setFirstPlayer(firstPlayer);
     

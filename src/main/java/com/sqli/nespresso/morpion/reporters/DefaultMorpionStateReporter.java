@@ -9,11 +9,14 @@ import java.util.stream.Stream;
 import com.sqli.nespresso.morpion.entities.MorpionSlot;
 import com.sqli.nespresso.morpion.entities.Player;
 import com.sqli.nespresso.morpion.extractors.MorpionExtractor;
+import com.sqli.nespresso.morpion.utils.ImmutablePair;
 
 public final class DefaultMorpionStateReporter implements MorpionStateReporter
 {
   
-	  private MorpionSlot[] morpionSlots;
+  private MorpionSlot[] morpionSlots;
+
+  private ImmutablePair<Integer, Integer> morpionSize;
 	  
   private MorpionExtractor morpionExtractor;
 
@@ -25,6 +28,12 @@ public final class DefaultMorpionStateReporter implements MorpionStateReporter
   public void setMorpionSlots(MorpionSlot[] slots)
   {
     this.morpionSlots = slots;
+  }
+  
+  @Override
+  public void setMorpionSize(ImmutablePair<Integer, Integer> size)
+  {
+    this.morpionSize = size;
   }
 
   @Override
@@ -60,6 +69,10 @@ public final class DefaultMorpionStateReporter implements MorpionStateReporter
   @Override
   public MorpionStateReport getReport()
   {
+    morpionExtractor.setMorpionSlots(morpionSlots);
+    
+    morpionExtractor.setMorpionSize(morpionSize);
+    
     final Optional<String> winner = Stream.concat(Stream.of(morpionExtractor.extractorRows(),
         morpionExtractor.extractorColumns())
         .flatMap(Arrays::stream),
