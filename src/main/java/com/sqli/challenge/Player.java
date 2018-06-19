@@ -24,4 +24,9 @@ final class Player
 	{
 		return name;
 	}
+	
+	char display()
+	{
+	  return token;
+	}
 }

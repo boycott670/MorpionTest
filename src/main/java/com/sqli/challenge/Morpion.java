@@ -1,13 +1,16 @@
 package com.sqli.challenge;
 
 import java.util.Arrays;
-import java.util.function.ToLongFunction;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.sqli.challenge.MorpionParse.Pair;
 
 final class Morpion
 {
+  static final CharSequence LINE_SEPARATOR = "\n";
+  
 	private final Player firstPlayer;
 	
 	private final Player secondPlayer;
@@ -31,11 +34,16 @@ final class Morpion
 				.toArray(MorpionSlot[]::new);
 	}
 	
+	int rows()
+	{
+	  return new Double(Math.sqrt(slots.length)).intValue();
+	}
+	
 	void play(final String playerName, final String coordinates)
 	{
 		final Pair<Integer, Integer> parsedCoordinates = new MorpionParse().parseCoordinates(coordinates);
 		
-		final int rows = new Double(Math.sqrt(slots.length)).intValue();
+		final int rows = rows();
 		
 		final Player player = firstPlayer.hasName(playerName) ? firstPlayer : secondPlayer;
 		
@@ -46,16 +54,17 @@ final class Morpion
 	
 	String report()
 	{
-		final long numberOfEmptySlots = Arrays.stream(slots).filter(MorpionSlot::isNotPlayedYet).count();
-		
-		final long remainingPlays = numberOfEmptySlots / 2;
-		
-		final ToLongFunction<Player> getRemainingPlaysFor = player -> remainingPlays + (lastPlayingPlayer != player ? 1 : 0);
-		
-		final long remainingPlaysForFirstPlayer = getRemainingPlaysFor.applyAsLong(firstPlayer);
-		
-		final long remainingPlaysForSecondPlayer = getRemainingPlaysFor.applyAsLong(secondPlayer);
-		
-		return String.format("%d games for %s, %d games for %s", remainingPlaysForFirstPlayer, firstPlayer, remainingPlaysForSecondPlayer, secondPlayer);
+	  return new MorpionStateReport(slots, rows()).report(firstPlayer, secondPlayer, lastPlayingPlayer);
+	}
+	
+	String display()
+	{
+    return IntStream.iterate(0, currentRowIndex -> currentRowIndex + rows())
+        .limit(rows())
+        .mapToObj(rowIndex -> Arrays.stream(Arrays.copyOfRange(slots, rowIndex, rowIndex + rows()))
+            .map(MorpionSlot::display)
+            .map(String::valueOf)
+            .collect(Collectors.joining()))
+        .collect(Collectors.joining(LINE_SEPARATOR)) + LINE_SEPARATOR;
 	}
 }

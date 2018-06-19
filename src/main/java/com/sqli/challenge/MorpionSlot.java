@@ -1,5 +1,6 @@
 package com.sqli.challenge;
 
+import java.util.Objects;
 import java.util.Optional;
 
 final class MorpionSlot
@@ -24,5 +25,28 @@ final class MorpionSlot
 	boolean isNotPlayedYet()
 	{
 		return !player.isPresent();
+	}
+	
+	Optional<Player> isRowWon(final MorpionSlot... othersInRow)
+	{
+	  if (player.isPresent())
+	  {
+	    for (final MorpionSlot other : othersInRow)
+	    {
+	      if (!other.player.isPresent() || !Objects.equals(player.get(), other.player.get()))
+	      {
+	        return Optional.empty();
+	      }
+	    }
+	    
+	    return player;
+	  }
+	  
+	  return Optional.empty();
+	}
+	
+	char display()
+	{
+	  return player.map(Player::display).orElse(' ');
 	}
 }
